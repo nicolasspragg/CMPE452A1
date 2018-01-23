@@ -7,14 +7,21 @@ import java.math.*;
 public class Cmpe452Assignment1 {
 
     public static void main(String[] args) throws  Exception{
-     double learningRate = 0.2;
+     double learningRate = 1;
      int numEntities = 120;
+     int testDataSize = 40;
      double theta = 0;
-    int maxIter = 5000;
+    int maxIter = 500000;
     double sepalLength[] = new double[numEntities];
     double sepalWidth[] = new double[numEntities];
     double petalLength[] = new double[numEntities];
     double petalWidth[] = new double[numEntities];
+
+    double sepalLengthTest[] = new double[testDataSize];
+    double sepalWidthTest[] = new double[testDataSize];
+    double petalLengthTest[] = new double[testDataSize];
+    double petalWidthTest[] = new double[testDataSize];
+   fillInTestData(sepalLengthTest,sepalWidthTest,petalLengthTest,petalWidthTest);
 
     int outputs[] = new int[120];
 
@@ -30,7 +37,7 @@ public class Cmpe452Assignment1 {
     fillvirginicaVSAll(virginicaVSAll);
 
 
-    readInAttr(sepalLength, sepalWidth, petalLength, petalWidth, outputs);
+    readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
 
     double weightsSettosa[] = new double[5];
     weightsSettosa[0] = 0.4;
@@ -53,26 +60,6 @@ public class Cmpe452Assignment1 {
     weightsVirinica[2] = 0.7;
     weightsVirinica[3] = 0.3;
     weightsVirinica[4] = 0.2; // bias
-
-    /*
-   do {
-       iterations++;
-       error = 0;
-       for (int i = 0; i < numEntities; i++) {
-           output = findOutputValue(theta,weights,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
-           lError = outputs[i] - output;
-           weights[0] += learningRate * lError * sepalLength[i];
-           weights[1] += learningRate * lError * sepalWidth[i];
-           weights[2] += learningRate * lError * petalLength[i];
-           weights[3] += learningRate * lError * petalWidth[i];
-           weights[4] += learningRate * lError;
-           error += (lError * lError);
-           rmsError = Math.sqrt(error/numEntities);
-       }
-
-   } while (error != 0);
-
-*/
 
     //train classifier settosaVSAll
     int settosaError;
@@ -169,6 +156,60 @@ public class Cmpe452Assignment1 {
         virginicaConfidenceScore = virginicaCorrectCount/virginicaWrongCount;
         System.out.println("Confidence Score " + virginicaConfidenceScore);
 
+        System.out.println("------------TESTING-------------- \n");
+
+
+    //------------------------------------------MARK TESTING -------------------------------------------------------------
+        double setosaClassifier;
+        double veriscolorClassifier;
+        double virginicaClassifier;
+
+        int setosaScore = 0;
+        int veriscolorScore = 0;
+        int virginicaScore = 0;
+
+        int flowerType = 0;
+        for (int i = 0; i < testDataSize; i++) {
+            setosaClassifier = findOutputValue(theta, weightsSettosa, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+            veriscolorClassifier = findOutputValue(theta, weightsVeriscolor, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+            virginicaClassifier = findOutputValue(theta, weightsVirinica, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+            System.out.println("c1 " + setosaClassifier);
+            System.out.println("c2 " + veriscolorClassifier);
+            System.out.println("c3 " + virginicaClassifier);
+
+            if(setosaClassifier == 1) {
+                setosaScore++;
+            } else if (veriscolorClassifier == 1) {
+                veriscolorScore++;
+            } else if (virginicaClassifier == 1) {
+                virginicaScore++;
+            }
+            String flowerTypeString = "";
+            flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, flowerTypeString);
+
+
+        }
+
+}
+
+public static int returnMax(int x, int y, int z, String flowerTypeString) {
+    if(x > y && x > z) {
+        flowerTypeString = "setosa";
+        System.out.println(flowerTypeString);
+        return x;
+    }
+
+    if (y > x && y > z) {
+        flowerTypeString = "veriscolor";
+        System.out.println(flowerTypeString);
+        return y;
+    }
+    else {
+        flowerTypeString = "virginica";
+        System.out.println(flowerTypeString);
+        return z;
+    }
+
 
 }
 
@@ -182,7 +223,8 @@ public static int findOutputValue(double theta,double[]weights, double sepalLeng
     }
 }
 
-public static void readInAttr(double sepalLength[], double sepalWidth[], double petalLength[], double petalWidth[], int outputs[]) throws Exception{
+
+public static void readInAttr(double sepalLength[], double sepalWidth[], double petalLength[], double petalWidth[]) throws Exception{
     BufferedReader br = new BufferedReader(new FileReader("train.txt"));
     String line = null;
     int i = 0;
@@ -246,6 +288,19 @@ public static void fillvirginicaVSAll(int virginicaVSAll[]) throws Exception{
 
 }
 
+public static void fillInTestData(double sepalLengthTest[], double sepalWidthTest[], double petalLengthTest[], double petalWidthTest[]) throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader("test.txt"));
+    String line = null;
+    int i = 0;
+    while ((line = br.readLine()) != null) {
+        String[] values = line.split(",");
+        sepalLengthTest[i] = Double.parseDouble(values[0]);
+        sepalWidthTest[i] = Double.parseDouble(values[1]);
+        petalLengthTest[i] = Double.parseDouble(values[2]);
+        petalWidthTest[i] = Double.parseDouble(values[3]);
+        i++;
+    }
 
+}
 }
 
