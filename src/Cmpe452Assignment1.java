@@ -10,7 +10,7 @@ public class Cmpe452Assignment1 {
      double learningRate = 0.2;
      int numEntities = 120;
      double theta = 0;
-    int maxIter = 1000000;
+    int maxIter = 5000;
     double sepalLength[] = new double[numEntities];
     double sepalWidth[] = new double[numEntities];
     double petalLength[] = new double[numEntities];
@@ -98,6 +98,7 @@ public class Cmpe452Assignment1 {
             weightsSettosa[4] += learningRate * settosaErrorLocal;
             settosaError += (settosaErrorLocal*settosaErrorLocal);
         }
+
     } while (settosaError != 0);
     System.out.println("Classified settosa vs all");
     settosaConfidenceScore = settosaCorrectCount/settosaWrongCount;
@@ -136,7 +137,37 @@ public class Cmpe452Assignment1 {
     veriscolorConfidenceScore = veriscolorCorrectCount/veriscolorWrongCount;
     System.out.println("Confidence Score " + veriscolorConfidenceScore);
 
+        //train classifier virginicaVSall
+        int virginicaError;
+        int virginicaErrorLocal;
+        int virginicaOutput;
+        int virginicaCorrectCount = 0;
+        int virginicaWrongCount = 0;
+        double virginicaConfidenceScore;
+        int countVirginica = 0;
+        do {
+            countVirginica++;
+            virginicaError = 0;
+            for (int i = 0; i < numEntities; i++) {
+                virginicaOutput = findOutputValue(theta,weightsVeriscolor,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+                virginicaErrorLocal = virginicaVSAll[i] - virginicaOutput;
+                if(virginicaErrorLocal == 0) {
+                    virginicaCorrectCount++;
+                } else {
+                    virginicaWrongCount++;
+                }
+                weightsVeriscolor[0] += learningRate * virginicaErrorLocal * sepalLength[i];
+                weightsVeriscolor[1] += learningRate * virginicaErrorLocal * sepalWidth[i];
+                weightsVeriscolor[2] += learningRate * virginicaErrorLocal * petalLength[i];
+                weightsVeriscolor[3] += learningRate * virginicaErrorLocal * petalWidth[i];
+                weightsVeriscolor[4] += learningRate * virginicaErrorLocal;
+                versicolorError += (virginicaErrorLocal*virginicaErrorLocal);
+            }
 
+        } while (virginicaError != 0 && countVirginica <= maxIter );
+        System.out.println("Classified virginica vs all");
+        virginicaConfidenceScore = virginicaCorrectCount/virginicaWrongCount;
+        System.out.println("Confidence Score " + virginicaConfidenceScore);
 
 
 }
