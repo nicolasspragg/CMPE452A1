@@ -9,7 +9,7 @@ public class Cmpe452Assignment1 {
 
 
     public static void main(String[] args) throws  Exception{
-     double learningRate = 0.6;
+     double learningRate = 0.2;
      int numEntities = 120;
      int trainDataSize = 40;
      int iterations = 0 ;
@@ -24,11 +24,22 @@ public class Cmpe452Assignment1 {
 
         int output;
         int outputs[] = new int[120];
-        readInAttr(sepalLength, sepalWidth, petalLength, petalWidth, outputs);
 
+        int settosaVSAll[] = new int[120];
+        fillsettosaVSAll(settosaVSAll);
+        System.out.println(Arrays.toString(settosaVSAll));
+
+        int versicolorVSAll[] = new int[120];
+        fillversicolorVSAll(versicolorVSAll);
+
+        int virginicaVSAll[] = new int[120];
+        fillvirginicaVSAll(virginicaVSAll);
+
+
+        readInAttr(sepalLength, sepalWidth, petalLength, petalWidth, outputs);
         double weights[] = new double[5];
 
-        
+
         weights[0] = 0.4;
         weights[1] = 0.5;
         weights[2] = 0.7;
@@ -37,11 +48,11 @@ public class Cmpe452Assignment1 {
 
         double rmsError;
 
-    //train
+        /*
        do {
-           error = 0;
            iterations++;
-           for (int i = 0; i < 120; i++) {
+           error = 0;
+           for (int i = 0; i < numEntities; i++) {
                output = findOutputValue(theta,weights,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
                lError = outputs[i] - output;
                weights[0] += learningRate * lError * sepalLength[i];
@@ -51,16 +62,37 @@ public class Cmpe452Assignment1 {
                weights[4] += learningRate * lError;
                error += (lError * lError);
                rmsError = Math.sqrt(error/numEntities);
-               //System.out.println("Current weights" + weights[0] + weights[1] + weights[2] + weights [3] + weights[4]);
-               System.out.println("Iteration: " +iterations);
-               System.out.println("Error: " +error);
-
            }
 
        } while (error != 0);
 
-       System.out.println("Ending weights" + weights[0] + weights[1] + weights[2] + weights [3] + weights[4]);
-       System.out.println(iterations);
+
+
+    */
+
+        //train classifier settosaVSAll
+        int settosaError;
+        int settosaErrorLocal;
+        int settosaOutput;
+        int count;
+        do {
+            settosaError = 0;
+            count = 0;
+            for (int i = 0; i < numEntities; i++) {
+                settosaOutput = findOutputValue(theta,weights,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+                settosaErrorLocal = settosaVSAll[i] - settosaOutput;
+                weights[0] += learningRate * settosaErrorLocal * sepalLength[i];
+                weights[1] += learningRate * settosaErrorLocal * sepalWidth[i];
+                weights[2] += learningRate * settosaErrorLocal * petalLength[i];
+                weights[3] += learningRate * settosaErrorLocal * petalWidth[i];
+                weights[4] += learningRate * settosaErrorLocal;
+                settosaError += (settosaErrorLocal*settosaErrorLocal);
+            }
+            count++;
+        } while (settosaError != 0);
+
+
+
 
 
     }
@@ -69,7 +101,7 @@ public class Cmpe452Assignment1 {
 
     public static int findOutputValue(double theta,double[]weights, double sepalLength, double sepalWidth, double petalLength, double petalWidth) {
         double sum = sepalLength * weights[0] + sepalWidth * weights[1] + petalLength * weights[2] + petalWidth * weights[3];
-        if(sum >= theta) {
+        if(sum > theta) {
             return 1;
         } else {
             return 0;
@@ -82,25 +114,65 @@ public class Cmpe452Assignment1 {
         int i = 0;
         while((line = br.readLine()) != null) {
             String[] values = line.split(",");
-
             sepalLength[i] = Double.parseDouble(values[0]);
             sepalWidth[i] = Double.parseDouble(values[1]);
             petalLength[i] = Double.parseDouble(values[2]);
             petalWidth[i] = Double.parseDouble(values[3]);
-            // convert string class names to numerical data
-            if(values[4].equals("Iris-setosa")) {
-                outputs[i] = 0;
-            } else if (values[4].equals("Iris-versicolor")) {
-                outputs[i] = 1;
-
-            } else {
-                outputs[i] = 2;
-            }
             i++;
 
         }
 
     }
+
+    public static void fillsettosaVSAll(int settosaVSAll[]) throws Exception{
+        BufferedReader br = new BufferedReader(new FileReader("train.txt"));
+        String line = null;
+        int i = 0;
+        while((line = br.readLine()) != null) {
+            String[] values = line.split(",");
+           if(values[4].equals("Iris-setosa")) {
+                settosaVSAll[i] = 1;
+           } else {
+               settosaVSAll[i] = 0;
+           }
+            i++;
+        }
+
+    }
+
+    public static void fillversicolorVSAll(int versicolorVSAll[]) throws Exception{
+        BufferedReader br = new BufferedReader(new FileReader("train.txt"));
+        String line = null;
+        int i = 0;
+        while((line = br.readLine()) != null) {
+            String[] values = line.split(",");
+            if(values[4].equals("Iris-versicolor")) {
+                versicolorVSAll[i] = 1;
+            } else {
+                versicolorVSAll[i] = 0;
+            }
+            i++;
+        }
+
+    }
+
+    public static void fillvirginicaVSAll(int virginicaVSAll[]) throws Exception{
+        BufferedReader br = new BufferedReader(new FileReader("train.txt"));
+        String line = null;
+        int i = 0;
+        while((line = br.readLine()) != null) {
+            String[] values = line.split(",");
+            if(values[4].equals("Iris-virginica")) {
+                virginicaVSAll[i] = 1;
+            } else {
+                virginicaVSAll[i] = 0;
+            }
+            i++;
+        }
+
+    }
+
+
 
 
 }
