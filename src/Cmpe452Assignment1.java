@@ -6,14 +6,13 @@ import java.math.*;
 
 public class Cmpe452Assignment1 {
 
-
-
     public static void main(String[] args) throws  Exception{
      double learningRate = 0.2;
      int numEntities = 120;
      int trainDataSize = 40;
      int iterations = 0 ;
      double theta = 0;
+        int maxIter = 4000000;
         double lError; //Error for  predicted vs actual
         double error; // root mean squared error
 
@@ -27,10 +26,11 @@ public class Cmpe452Assignment1 {
 
         int settosaVSAll[] = new int[120];
         fillsettosaVSAll(settosaVSAll);
-        System.out.println(Arrays.toString(settosaVSAll));
+
 
         int versicolorVSAll[] = new int[120];
         fillversicolorVSAll(versicolorVSAll);
+
 
         int virginicaVSAll[] = new int[120];
         fillvirginicaVSAll(virginicaVSAll);
@@ -66,18 +66,17 @@ public class Cmpe452Assignment1 {
 
        } while (error != 0);
 
+*/
 
 
-    */
 
         //train classifier settosaVSAll
+
         int settosaError;
         int settosaErrorLocal;
         int settosaOutput;
-        int count;
         do {
             settosaError = 0;
-            count = 0;
             for (int i = 0; i < numEntities; i++) {
                 settosaOutput = findOutputValue(theta,weights,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
                 settosaErrorLocal = settosaVSAll[i] - settosaOutput;
@@ -88,15 +87,50 @@ public class Cmpe452Assignment1 {
                 weights[4] += learningRate * settosaErrorLocal;
                 settosaError += (settosaErrorLocal*settosaErrorLocal);
             }
-            count++;
         } while (settosaError != 0);
+        System.out.println("Classified settosa vs all");
 
 
+        //train classifier veriscolorVSall
+        int versicolorError;
+        int versicolorErrorLocal;
+        int versicolorOutput;
 
+       double correctCount = 0;
+       double wrongCount = 0;
+
+        int count = 0;
+        do {
+            count++;
+            versicolorError = 0;
+            for (int i = 0; i < numEntities; i++) {
+                versicolorOutput = findOutputValue(theta,weights,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+                versicolorErrorLocal = versicolorVSAll[i] - versicolorOutput;
+                if(versicolorErrorLocal == 0) {
+                    correctCount++;
+
+                } else {
+                    wrongCount++;
+                }
+                weights[0] += learningRate * versicolorErrorLocal * sepalLength[i];
+                weights[1] += learningRate * versicolorErrorLocal * sepalWidth[i];
+                weights[2] += learningRate * versicolorErrorLocal * petalLength[i];
+                weights[3] += learningRate * versicolorErrorLocal * petalWidth[i];
+                weights[4] += learningRate * versicolorErrorLocal;
+                versicolorError += (versicolorErrorLocal*versicolorErrorLocal);
+            }
+
+        } while (versicolorError != 0 && count <= maxIter );
+        System.out.println("Classified versicolor vs all");
+
+        System.out.println(correctCount);
+        System.out.println(wrongCount);
+
+        double acc = wrongCount / correctCount;
+        System.out.println("Accuracy " +acc +"%");
 
 
     }
-
 
 
     public static int findOutputValue(double theta,double[]weights, double sepalLength, double sepalWidth, double petalLength, double petalWidth) {
