@@ -13,7 +13,7 @@ public class Cmpe452Assignment1 {
      int numEntities = 120;
      int testDataSize = 30;
      double theta = 0;
-    int maxIter = 500000;
+    int maxIter = 500;
 
     double sRMSError;
     double veRMSError;
@@ -24,6 +24,7 @@ public class Cmpe452Assignment1 {
     double sepalWidth[] = new double[numEntities];
     double petalLength[] = new double[numEntities];
     double petalWidth[] = new double[numEntities];
+    readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
 
     double sepalLengthTest[] = new double[testDataSize];
     double sepalWidthTest[] = new double[testDataSize];
@@ -42,9 +43,6 @@ public class Cmpe452Assignment1 {
     int settosaVSAll[] = new int[120];
     fillsettosaVSAll(settosaVSAll);
 
-
-
-
     int versicolorVSAll[] = new int[120];
     fillversicolorVSAll(versicolorVSAll);
 
@@ -53,7 +51,7 @@ public class Cmpe452Assignment1 {
     fillvirginicaVSAll(virginicaVSAll);
 
 
-    readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
+
 
 
 
@@ -211,10 +209,6 @@ public class Cmpe452Assignment1 {
 
             flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, guessedClass,i);
 
-
-
-
-
         }
 
         writeOutputToFile(weightsSettosa, weightsVeriscolor, weightsVeriscolor, realClasses, guessedClass, sRMSError, veRMSError, viRMSError);
@@ -223,15 +217,15 @@ public class Cmpe452Assignment1 {
 
 public static int returnMax(int x, int y, int z, String[] guessedClass, int i) {
     if(x > y && x > z) {
-        guessedClass[i] = "setosa";
+        guessedClass[i] = "Iris-setosa";
         return x;
     }
     if (y > x && y > z) {
-        guessedClass[i] = "veriscolor";
+        guessedClass[i] = "Iris-versicolor";
         return y;
     }
     else {
-        guessedClass[i] = "virginica";
+        guessedClass[i] = "Iris-virginica";
         return z;
     }
 
@@ -344,24 +338,36 @@ public static void fillInRealClasses(String[] realClasses) throws Exception {
 public static void writeOutputToFile(double sEndWeights[], double veEndWeights[], double viEndWeights[], String[] realClasses, String[] guessedClasses, double sRMSError, double veRMSError, double viRMSError) throws  Exception {
 PrintWriter writer = new PrintWriter("output.txt");
 writer.println("CMPE 452 Assignment1.");
-writer.println("Nicolas Spragg - 10101095");
+writer.println("Nicolas Spragg - 10101095 \n");
 
 writer.println("Start weights: 0.4, 0.5, 0.7, 0.3, 0.2");
 writer.println("Setosa final Weights " + sEndWeights[0] +  ", " + sEndWeights[1]+ ", " + sEndWeights[2] + ", " + sEndWeights[3]+ ", " + sEndWeights[4]);
 writer.println("Veriscolor final Weights " + veEndWeights[0] + ", " + veEndWeights[1]+ ", " + veEndWeights[2] + ", "+ veEndWeights[3] + ", " + veEndWeights[4]);
-writer.println("Virginica final Weights" + viEndWeights[0] + ", " + viEndWeights[1] + ", " + viEndWeights[2] + ", " + viEndWeights[3] + ", " + viEndWeights[4]);
+writer.println("Virginica final Weights" + viEndWeights[0] + ", " + viEndWeights[1] + ", " + viEndWeights[2] + ", " + viEndWeights[3] + ", " + viEndWeights[4] +"\n");
+
 
 writer.println("Setosa Classifier RMS error " + sRMSError);
 writer.println("Veriscolor Classifier RMS error " + veRMSError);
-writer.println("Virginica Classifier RMS error " + viRMSError);
+writer.println("Virginica Classifier RMS error " + viRMSError +"\n");
 
-writer.println("Total number of iterations Setosa classifier: 6, Veriscolor and Virginica 500000");
+writer.println("Total number of iterations Setosa classifier: 6, Veriscolor and Virginica 500");
 writer.println("Exit conditions were having an error of 0 or reaching the max iteration ");
 
+int wrong = 0;
+int correct = 0;
 for (int i = 0; i < 30; i++) {
-    writer.println("guessed class " + guessedClasses[i] + " Correct answer " + realClasses[i] + " " + i);
+    writer.println("guessed class " + guessedClasses[i] + " Correct answer " + realClasses[i]);
+
+    if (guessedClasses[i].equals(realClasses[i])) {
+        correct++;
+    } else {
+        wrong++;
+    }
+
 }
 
+writer.println("correct:" + correct);
+writer.println("Wrong:" + wrong);
 writer.close();
 
 }
