@@ -8,213 +8,209 @@ import java.math.*;
 
 public class Cmpe452Assignment1 {
 
-    public static void main(String[] args) throws  Exception{
-     double learningRate = 1;
-     int numEntities = 120;
-     int testDataSize = 30;
-     double theta = 0;
-    int maxIter = 500;
+public static void main(String[] args) throws  Exception{
+ double learningRate = 1;
+ int numEntities = 120; 
+ int testDataSize = 30;
+ double theta = 0;
+int maxIter = 500;
+// initialize RMS error values
+double sRMSError = 0;
+double veRMSError = 0;
+double viRMSError = 0 ;
 
-    double sRMSError;
-    double veRMSError;
-    double viRMSError;
+// create and fill arrays for flower attributes 
+double sepalLength[] = new double[numEntities];
+double sepalWidth[] = new double[numEntities];
+double petalLength[] = new double[numEntities];
+double petalWidth[] = new double[numEntities];
+readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
 
-
-    double sepalLength[] = new double[numEntities];
-    double sepalWidth[] = new double[numEntities];
-    double petalLength[] = new double[numEntities];
-    double petalWidth[] = new double[numEntities];
-    readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
-
-    double sepalLengthTest[] = new double[testDataSize];
-    double sepalWidthTest[] = new double[testDataSize];
-    double petalLengthTest[] = new double[testDataSize];
-    double petalWidthTest[] = new double[testDataSize];
-   fillInTestData(sepalLengthTest,sepalWidthTest,petalLengthTest,petalWidthTest);
-
-
-
-   String realClasses[] = new String [testDataSize];
-   String guessedClass[] = new String [testDataSize];
-   fillInRealClasses(realClasses);
+// create and fill arrays for the test data
+double sepalLengthTest[] = new double[testDataSize];
+double sepalWidthTest[] = new double[testDataSize];
+double petalLengthTest[] = new double[testDataSize];
+double petalWidthTest[] = new double[testDataSize];
+fillInTestData(sepalLengthTest,sepalWidthTest,petalLengthTest,petalWidthTest);
 
 
-
-    int settosaVSAll[] = new int[120];
-    fillsettosaVSAll(settosaVSAll);
-
-    int versicolorVSAll[] = new int[120];
-    fillversicolorVSAll(versicolorVSAll);
+//arrays for the real class names and the guessed classes. 
+String realClasses[] = new String [testDataSize];
+String guessedClass[] = new String [testDataSize];
+fillInRealClasses(realClasses);
 
 
-    int virginicaVSAll[] = new int[120];
-    fillvirginicaVSAll(virginicaVSAll);
+// array of 1 if the flower is settosa 0 if not. 
+int settosaVSAll[] = new int[120];
+fillsettosaVSAll(settosaVSAll);
 
 
+int versicolorVSAll[] = new int[120];
+fillversicolorVSAll(versicolorVSAll);
 
 
+int virginicaVSAll[] = new int[120];
+fillvirginicaVSAll(virginicaVSAll);
+
+//give initial weights to the classifiers
+double weightsSettosa[] = new double[5];
+weightsSettosa[0] = 0.4;
+weightsSettosa[1] = 0.5;
+weightsSettosa[2] = 0.7;
+weightsSettosa[3] = 0.3;
+weightsSettosa[4] = 0.2; // bias
+
+double weightsVeriscolor[] = new double[5];
+weightsVeriscolor[0] = 0.4;
+weightsVeriscolor[1] = 0.5;
+weightsVeriscolor[2] = 0.7;
+weightsVeriscolor[3] = 0.3;
+weightsVeriscolor[4] = 0.2; // bias
+
+double weightsVirinica[] = new double[5];
+weightsVirinica[0] = 0.4;
+weightsVirinica[1] = 0.5;
+weightsVirinica[2] = 0.7;
+weightsVirinica[3] = 0.3;
+weightsVirinica[4] = 0.2; // bias
+
+//train classifier settosaVSAll
+int settosaError;
+int settosaErrorLocal;
+int settosaOutput;
+int settosaCorrectCount = 0;
+int settosaWrongCount = 0;
+double settosaConfidenceScore;
+do {
+    settosaError = 0;
+    for (int i = 0; i < numEntities; i++) {
+        settosaOutput = findOutputValue(theta,weightsSettosa,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+        settosaErrorLocal = settosaVSAll[i] - settosaOutput;
+        if(settosaErrorLocal == 0) {
+            settosaCorrectCount++;
+        } else {
+            settosaWrongCount++;
+        }
+        // adjust weights based on local error and the learning rate. 
+        weightsSettosa[0] += learningRate * settosaErrorLocal * sepalLength[i];
+        weightsSettosa[1] += learningRate * settosaErrorLocal * sepalWidth[i];
+        weightsSettosa[2] += learningRate * settosaErrorLocal * petalLength[i];
+        weightsSettosa[3] += learningRate * settosaErrorLocal * petalWidth[i];
+        weightsSettosa[4] += learningRate * settosaErrorLocal;
+        settosaError += (settosaErrorLocal*settosaErrorLocal);
+    }
+
+    sRMSError = Math.sqrt(settosaError/120.0);
+
+} while (settosaError != 0);
+System.out.println("Classified settosa vs all");
+settosaConfidenceScore = settosaCorrectCount/settosaWrongCount;
+System.out.println("Confidence Score " + settosaConfidenceScore);
 
 
-    double weightsSettosa[] = new double[5];
-    weightsSettosa[0] = 0.4;
-    weightsSettosa[1] = 0.5;
-    weightsSettosa[2] = 0.7;
-    weightsSettosa[3] = 0.3;
-    weightsSettosa[4] = 0.2; // bias
+//train classifier veriscolorVSall
+int versicolorError;
+int versicolorErrorLocal;
+int versicolorOutput;
+int veriscolorCorrectCount = 0;
+int veriscolorWrongCount = 0;
+double veriscolorConfidenceScore;
+int countVeriscolor = 0;
+do {
+    countVeriscolor++;
+    versicolorError = 0;
+    for (int i = 0; i < numEntities; i++) {
+        versicolorOutput = findOutputValue(theta,weightsVeriscolor,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+        versicolorErrorLocal = versicolorVSAll[i] - versicolorOutput;
+        if(versicolorErrorLocal == 0) {
+            veriscolorCorrectCount++;
+        } else {
+            veriscolorWrongCount++;
+        }
+        weightsVeriscolor[0] += learningRate * versicolorErrorLocal * sepalLength[i];
+        weightsVeriscolor[1] += learningRate * versicolorErrorLocal * sepalWidth[i];
+        weightsVeriscolor[2] += learningRate * versicolorErrorLocal * petalLength[i];
+        weightsVeriscolor[3] += learningRate * versicolorErrorLocal * petalWidth[i];
+        weightsVeriscolor[4] += learningRate * versicolorErrorLocal;
+        versicolorError += (versicolorErrorLocal*versicolorErrorLocal);
+    }
+        veRMSError = Math.sqrt(versicolorError/120.0);
+} while (versicolorError != 0 && countVeriscolor <= maxIter );
+System.out.println("Classified versicolor vs all");
+veriscolorConfidenceScore = veriscolorCorrectCount/veriscolorWrongCount;
+System.out.println("Confidence Score " + veriscolorConfidenceScore);
 
-
-
-    double weightsVeriscolor[] = new double[5];
-    weightsVeriscolor[0] = 0.4;
-    weightsVeriscolor[1] = 0.5;
-    weightsVeriscolor[2] = 0.7;
-    weightsVeriscolor[3] = 0.3;
-    weightsVeriscolor[4] = 0.2; // bias
-
-
-    double weightsVirinica[] = new double[5];
-    weightsVirinica[0] = 0.4;
-    weightsVirinica[1] = 0.5;
-    weightsVirinica[2] = 0.7;
-    weightsVirinica[3] = 0.3;
-    weightsVirinica[4] = 0.2; // bias
-
-
-
-    //train classifier settosaVSAll
-    int settosaError;
-    int settosaErrorLocal;
-    int settosaOutput;
-    int settosaCorrectCount = 0;
-    int settosaWrongCount = 0;
-    double settosaConfidenceScore;
+    //train classifier virginicaVSall
+    int virginicaError;
+    int virginicaErrorLocal;
+    int virginicaOutput;
+    int virginicaCorrectCount = 0;
+    int virginicaWrongCount = 0;
+    double virginicaConfidenceScore;
+    int countVirginica = 0;
     do {
-        settosaError = 0;
+        countVirginica++;
+        virginicaError = 0;
         for (int i = 0; i < numEntities; i++) {
-            settosaOutput = findOutputValue(theta,weightsSettosa,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
-            settosaErrorLocal = settosaVSAll[i] - settosaOutput;
-            if(settosaErrorLocal == 0) {
-                settosaCorrectCount++;
+            virginicaOutput = findOutputValue(theta,weightsVeriscolor,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
+            virginicaErrorLocal = virginicaVSAll[i] - virginicaOutput;
+            if(virginicaErrorLocal == 0) {
+                virginicaCorrectCount++;
             } else {
-                settosaWrongCount++;
+                virginicaWrongCount++;
             }
-            weightsSettosa[0] += learningRate * settosaErrorLocal * sepalLength[i];
-            weightsSettosa[1] += learningRate * settosaErrorLocal * sepalWidth[i];
-            weightsSettosa[2] += learningRate * settosaErrorLocal * petalLength[i];
-            weightsSettosa[3] += learningRate * settosaErrorLocal * petalWidth[i];
-            weightsSettosa[4] += learningRate * settosaErrorLocal;
-            settosaError += (settosaErrorLocal*settosaErrorLocal);
+            weightsVeriscolor[0] += learningRate * virginicaErrorLocal * sepalLength[i];
+            weightsVeriscolor[1] += learningRate * virginicaErrorLocal * sepalWidth[i];
+            weightsVeriscolor[2] += learningRate * virginicaErrorLocal * petalLength[i];
+            weightsVeriscolor[3] += learningRate * virginicaErrorLocal * petalWidth[i];
+            weightsVeriscolor[4] += learningRate * virginicaErrorLocal;
+            virginicaError += (virginicaErrorLocal*virginicaErrorLocal);
+        }
+        viRMSError = Math.sqrt(virginicaError/120.0);
+    } while (virginicaError != 0 && countVirginica <= maxIter );
+    System.out.println("Classified virginica vs all");
+    virginicaConfidenceScore = virginicaCorrectCount/virginicaWrongCount;
+    System.out.println("Confidence Score " + virginicaConfidenceScore);
+
+    System.out.println("------------TESTING-------------- \n");
+
+
+//------------------------------------------MARK TESTING -------------------------------------------------------------
+    double setosaClassifier;
+    double veriscolorClassifier;
+    double virginicaClassifier;
+
+    int setosaScore = 0;
+    int veriscolorScore = 0;
+    int virginicaScore = 0;
+
+
+    /*
+    Pass test data to each trained classifier and increment scores. 
+    */
+    int flowerType = 0;
+    int typeFlag = 0;
+    for (int i = 0; i < testDataSize; i++) {
+        setosaClassifier = findOutputValue(theta, weightsSettosa, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+        veriscolorClassifier = findOutputValue(theta, weightsVeriscolor, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+        virginicaClassifier = findOutputValue(theta, weightsVirinica, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
+
+        if(setosaClassifier == 1) {
+            setosaScore++;
+        } else if (veriscolorClassifier == 1) {
+            veriscolorScore++;
+        } else if (virginicaClassifier == 1) {
+            virginicaScore++;
         }
 
-        sRMSError = Math.sqrt(settosaError/120.0);
+        flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, guessedClass,i);
 
-    } while (settosaError != 0);
-    System.out.println("Classified settosa vs all");
-    settosaConfidenceScore = settosaCorrectCount/settosaWrongCount;
-    System.out.println("Confidence Score " + settosaConfidenceScore);
+    }
 
-
-    //train classifier veriscolorVSall
-    int versicolorError;
-    int versicolorErrorLocal;
-    int versicolorOutput;
-    int veriscolorCorrectCount = 0;
-    int veriscolorWrongCount = 0;
-    double veriscolorConfidenceScore;
-    int countVeriscolor = 0;
-    do {
-        countVeriscolor++;
-        versicolorError = 0;
-        for (int i = 0; i < numEntities; i++) {
-            versicolorOutput = findOutputValue(theta,weightsVeriscolor,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
-            versicolorErrorLocal = versicolorVSAll[i] - versicolorOutput;
-            if(versicolorErrorLocal == 0) {
-                veriscolorCorrectCount++;
-            } else {
-                veriscolorWrongCount++;
-            }
-            weightsVeriscolor[0] += learningRate * versicolorErrorLocal * sepalLength[i];
-            weightsVeriscolor[1] += learningRate * versicolorErrorLocal * sepalWidth[i];
-            weightsVeriscolor[2] += learningRate * versicolorErrorLocal * petalLength[i];
-            weightsVeriscolor[3] += learningRate * versicolorErrorLocal * petalWidth[i];
-            weightsVeriscolor[4] += learningRate * versicolorErrorLocal;
-            versicolorError += (versicolorErrorLocal*versicolorErrorLocal);
-        }
-            veRMSError = Math.sqrt(versicolorError/120.0);
-    } while (versicolorError != 0 && countVeriscolor <= maxIter );
-    System.out.println("Classified versicolor vs all");
-    veriscolorConfidenceScore = veriscolorCorrectCount/veriscolorWrongCount;
-    System.out.println("Confidence Score " + veriscolorConfidenceScore);
-
-        //train classifier virginicaVSall
-        int virginicaError;
-        int virginicaErrorLocal;
-        int virginicaOutput;
-        int virginicaCorrectCount = 0;
-        int virginicaWrongCount = 0;
-        double virginicaConfidenceScore;
-        int countVirginica = 0;
-        do {
-            countVirginica++;
-            virginicaError = 0;
-            for (int i = 0; i < numEntities; i++) {
-                virginicaOutput = findOutputValue(theta,weightsVeriscolor,sepalLength[i],sepalWidth[i],petalLength[i],petalWidth[i]);
-                virginicaErrorLocal = virginicaVSAll[i] - virginicaOutput;
-                if(virginicaErrorLocal == 0) {
-                    virginicaCorrectCount++;
-                } else {
-                    virginicaWrongCount++;
-                }
-                weightsVeriscolor[0] += learningRate * virginicaErrorLocal * sepalLength[i];
-                weightsVeriscolor[1] += learningRate * virginicaErrorLocal * sepalWidth[i];
-                weightsVeriscolor[2] += learningRate * virginicaErrorLocal * petalLength[i];
-                weightsVeriscolor[3] += learningRate * virginicaErrorLocal * petalWidth[i];
-                weightsVeriscolor[4] += learningRate * virginicaErrorLocal;
-                virginicaError += (virginicaErrorLocal*virginicaErrorLocal);
-            }
-            viRMSError = Math.sqrt(virginicaError/120.0);
-        } while (virginicaError != 0 && countVirginica <= maxIter );
-        System.out.println("Classified virginica vs all");
-        virginicaConfidenceScore = virginicaCorrectCount/virginicaWrongCount;
-        System.out.println("Confidence Score " + virginicaConfidenceScore);
-
-        System.out.println("------------TESTING-------------- \n");
-
-
-    //------------------------------------------MARK TESTING -------------------------------------------------------------
-        double setosaClassifier;
-        double veriscolorClassifier;
-        double virginicaClassifier;
-
-        int setosaScore = 0;
-        int veriscolorScore = 0;
-        int virginicaScore = 0;
-
-
-
-        int flowerType = 0;
-        int typeFlag = 0;
-        for (int i = 0; i < testDataSize; i++) {
-            setosaClassifier = findOutputValue(theta, weightsSettosa, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
-            veriscolorClassifier = findOutputValue(theta, weightsVeriscolor, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
-            virginicaClassifier = findOutputValue(theta, weightsVirinica, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
-
-            if(setosaClassifier == 1) {
-                setosaScore++;
-            } else if (veriscolorClassifier == 1) {
-                veriscolorScore++;
-            } else if (virginicaClassifier == 1) {
-                virginicaScore++;
-            }
-
-            flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, guessedClass,i);
-
-        }
-
-        writeOutputToFile(weightsSettosa, weightsVeriscolor, weightsVeriscolor, realClasses, guessedClass, sRMSError, veRMSError, viRMSError);
+    writeOutputToFile(weightsSettosa, weightsVeriscolor, weightsVeriscolor, realClasses, guessedClass, sRMSError, veRMSError, viRMSError);
 
 }
-
+// returns the max of given parameters and adds string to guessedClass array
 public static int returnMax(int x, int y, int z, String[] guessedClass, int i) {
     if(x > y && x > z) {
         guessedClass[i] = "Iris-setosa";
@@ -232,7 +228,9 @@ public static int returnMax(int x, int y, int z, String[] guessedClass, int i) {
 
 }
 
-
+/*
+    Activation function 
+*/
 public static int findOutputValue(double theta,double[]weights, double sepalLength, double sepalWidth, double petalLength, double petalWidth) {
     double sum = sepalLength * weights[0] + sepalWidth * weights[1] + petalLength * weights[2] + petalWidth * weights[3];
     if(sum > theta) {
