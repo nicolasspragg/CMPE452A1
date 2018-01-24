@@ -1,4 +1,6 @@
 
+import java.lang.reflect.Array;
+import java.nio.file.Paths;
 import java.util.*;
 import java.io.*;
 import java.math.*;
@@ -9,9 +11,15 @@ public class Cmpe452Assignment1 {
     public static void main(String[] args) throws  Exception{
      double learningRate = 1;
      int numEntities = 120;
-     int testDataSize = 40;
+     int testDataSize = 30;
      double theta = 0;
     int maxIter = 500000;
+
+    double sRMSError;
+    double veRMSError;
+    double viRMSError;
+
+
     double sepalLength[] = new double[numEntities];
     double sepalWidth[] = new double[numEntities];
     double petalLength[] = new double[numEntities];
@@ -23,10 +31,18 @@ public class Cmpe452Assignment1 {
     double petalWidthTest[] = new double[testDataSize];
    fillInTestData(sepalLengthTest,sepalWidthTest,petalLengthTest,petalWidthTest);
 
-    int outputs[] = new int[120];
+
+
+   String realClasses[] = new String [testDataSize];
+   String guessedClass[] = new String [testDataSize];
+   fillInRealClasses(realClasses);
+
+
 
     int settosaVSAll[] = new int[120];
     fillsettosaVSAll(settosaVSAll);
+
+
 
 
     int versicolorVSAll[] = new int[120];
@@ -39,12 +55,15 @@ public class Cmpe452Assignment1 {
 
     readInAttr(sepalLength, sepalWidth, petalLength, petalWidth);
 
+
+
     double weightsSettosa[] = new double[5];
     weightsSettosa[0] = 0.4;
     weightsSettosa[1] = 0.5;
     weightsSettosa[2] = 0.7;
     weightsSettosa[3] = 0.3;
     weightsSettosa[4] = 0.2; // bias
+
 
 
     double weightsVeriscolor[] = new double[5];
@@ -54,12 +73,15 @@ public class Cmpe452Assignment1 {
     weightsVeriscolor[3] = 0.3;
     weightsVeriscolor[4] = 0.2; // bias
 
+
     double weightsVirinica[] = new double[5];
     weightsVirinica[0] = 0.4;
     weightsVirinica[1] = 0.5;
     weightsVirinica[2] = 0.7;
     weightsVirinica[3] = 0.3;
     weightsVirinica[4] = 0.2; // bias
+
+
 
     //train classifier settosaVSAll
     int settosaError;
@@ -85,6 +107,8 @@ public class Cmpe452Assignment1 {
             weightsSettosa[4] += learningRate * settosaErrorLocal;
             settosaError += (settosaErrorLocal*settosaErrorLocal);
         }
+
+        sRMSError = Math.sqrt(settosaError/120.0);
 
     } while (settosaError != 0);
     System.out.println("Classified settosa vs all");
@@ -118,7 +142,7 @@ public class Cmpe452Assignment1 {
             weightsVeriscolor[4] += learningRate * versicolorErrorLocal;
             versicolorError += (versicolorErrorLocal*versicolorErrorLocal);
         }
-
+            veRMSError = Math.sqrt(versicolorError/120.0);
     } while (versicolorError != 0 && countVeriscolor <= maxIter );
     System.out.println("Classified versicolor vs all");
     veriscolorConfidenceScore = veriscolorCorrectCount/veriscolorWrongCount;
@@ -148,9 +172,9 @@ public class Cmpe452Assignment1 {
                 weightsVeriscolor[2] += learningRate * virginicaErrorLocal * petalLength[i];
                 weightsVeriscolor[3] += learningRate * virginicaErrorLocal * petalWidth[i];
                 weightsVeriscolor[4] += learningRate * virginicaErrorLocal;
-                versicolorError += (virginicaErrorLocal*virginicaErrorLocal);
+                virginicaError += (virginicaErrorLocal*virginicaErrorLocal);
             }
-
+            viRMSError = Math.sqrt(virginicaError/120.0);
         } while (virginicaError != 0 && countVirginica <= maxIter );
         System.out.println("Classified virginica vs all");
         virginicaConfidenceScore = virginicaCorrectCount/virginicaWrongCount;
@@ -168,14 +192,14 @@ public class Cmpe452Assignment1 {
         int veriscolorScore = 0;
         int virginicaScore = 0;
 
+
+
         int flowerType = 0;
+        int typeFlag = 0;
         for (int i = 0; i < testDataSize; i++) {
             setosaClassifier = findOutputValue(theta, weightsSettosa, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
             veriscolorClassifier = findOutputValue(theta, weightsVeriscolor, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
             virginicaClassifier = findOutputValue(theta, weightsVirinica, sepalLengthTest[i], sepalWidthTest[i],petalLengthTest[i], petalWidthTest[i]);
-            System.out.println("c1 " + setosaClassifier);
-            System.out.println("c2 " + veriscolorClassifier);
-            System.out.println("c3 " + virginicaClassifier);
 
             if(setosaClassifier == 1) {
                 setosaScore++;
@@ -184,29 +208,30 @@ public class Cmpe452Assignment1 {
             } else if (virginicaClassifier == 1) {
                 virginicaScore++;
             }
-            String flowerTypeString = "";
-            flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, flowerTypeString);
+
+            flowerType = returnMax(setosaScore,veriscolorScore,virginicaScore, guessedClass,i);
+
+
+
 
 
         }
 
+        writeOutputToFile(weightsSettosa, weightsVeriscolor, weightsVeriscolor, realClasses, guessedClass, sRMSError, veRMSError, viRMSError);
+
 }
 
-public static int returnMax(int x, int y, int z, String flowerTypeString) {
+public static int returnMax(int x, int y, int z, String[] guessedClass, int i) {
     if(x > y && x > z) {
-        flowerTypeString = "setosa";
-        System.out.println(flowerTypeString);
+        guessedClass[i] = "setosa";
         return x;
     }
-
     if (y > x && y > z) {
-        flowerTypeString = "veriscolor";
-        System.out.println(flowerTypeString);
+        guessedClass[i] = "veriscolor";
         return y;
     }
     else {
-        flowerTypeString = "virginica";
-        System.out.println(flowerTypeString);
+        guessedClass[i] = "virginica";
         return z;
     }
 
@@ -293,6 +318,7 @@ public static void fillInTestData(double sepalLengthTest[], double sepalWidthTes
     String line = null;
     int i = 0;
     while ((line = br.readLine()) != null) {
+        line = br.readLine();
         String[] values = line.split(",");
         sepalLengthTest[i] = Double.parseDouble(values[0]);
         sepalWidthTest[i] = Double.parseDouble(values[1]);
@@ -302,5 +328,43 @@ public static void fillInTestData(double sepalLengthTest[], double sepalWidthTes
     }
 
 }
+
+public static void fillInRealClasses(String[] realClasses) throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader("test.txt"));
+    String line = null;
+    int i = 0;
+    while ((line = br.readLine()) != null) {
+    String[] values = line.split(",");
+    realClasses[i] = values[4];
+    i++;
+}
+
+}
+
+public static void writeOutputToFile(double sEndWeights[], double veEndWeights[], double viEndWeights[], String[] realClasses, String[] guessedClasses, double sRMSError, double veRMSError, double viRMSError) throws  Exception {
+PrintWriter writer = new PrintWriter("output.txt");
+writer.println("CMPE 452 Assignment1.");
+writer.println("Nicolas Spragg - 10101095");
+
+writer.println("Start weights: 0.4, 0.5, 0.7, 0.3, 0.2");
+writer.println("Setosa final Weights " + sEndWeights[0] +  ", " + sEndWeights[1]+ ", " + sEndWeights[2] + ", " + sEndWeights[3]+ ", " + sEndWeights[4]);
+writer.println("Veriscolor final Weights " + veEndWeights[0] + ", " + veEndWeights[1]+ ", " + veEndWeights[2] + ", "+ veEndWeights[3] + ", " + veEndWeights[4]);
+writer.println("Virginica final Weights" + viEndWeights[0] + ", " + viEndWeights[1] + ", " + viEndWeights[2] + ", " + viEndWeights[3] + ", " + viEndWeights[4]);
+
+writer.println("Setosa Classifier RMS error " + sRMSError);
+writer.println("Veriscolor Classifier RMS error " + veRMSError);
+writer.println("Virginica Classifier RMS error " + viRMSError);
+
+writer.println("Total number of iterations Setosa classifier: 6, Veriscolor and Virginica 500000");
+writer.println("Exit conditions were having an error of 0 or reaching the max iteration ");
+
+for (int i = 0; i < 30; i++) {
+    writer.println("guessed class " + guessedClasses[i] + " Correct answer " + realClasses[i] + " " + i);
+}
+
+writer.close();
+
+}
+
 }
 

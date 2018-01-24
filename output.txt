@@ -1,0 +1,41 @@
+CMPE 452 Assignment1.
+Nicolas Spragg - 10101095
+Start weights: 0.4, 0.5, 0.7, 0.3, 0.2
+Setosa final Weights 0.40000000000000124, 5.4, -7.300000000000001, -3.0999999999999996, 1.2
+Veriscolor final Weights -208.60000001007003, -539.2000000037588, 243.09999999569175, 980.599999991717, -242033.8
+Virginica final Weights-208.60000001007003, -539.2000000037588, 243.09999999569175, 980.599999991717, -242033.8
+Setosa Classifier RMS error 0.0
+Veriscolor Classifier RMS error 0.24152294576982397
+Virginica Classifier RMS error 0.12909944487358055
+Total number of iterations Setosa classifier: 6, Veriscolor and Virginica 500000
+Exit conditions were having an error of 0 or reaching the max iteration 
+guessed class setosa Correct answer Iris-setosa 0
+guessed class setosa Correct answer Iris-setosa 1
+guessed class setosa Correct answer Iris-setosa 2
+guessed class setosa Correct answer Iris-setosa 3
+guessed class setosa Correct answer Iris-setosa 4
+guessed class setosa Correct answer Iris-setosa 5
+guessed class setosa Correct answer Iris-setosa 6
+guessed class setosa Correct answer Iris-setosa 7
+guessed class setosa Correct answer Iris-setosa 8
+guessed class virginica Correct answer Iris-setosa 9
+guessed class virginica Correct answer Iris-versicolor 10
+guessed class virginica Correct answer Iris-versicolor 11
+guessed class virginica Correct answer Iris-versicolor 12
+guessed class virginica Correct answer Iris-versicolor 13
+guessed class virginica Correct answer Iris-versicolor 14
+guessed class virginica Correct answer Iris-versicolor 15
+guessed class virginica Correct answer Iris-versicolor 16
+guessed class virginica Correct answer Iris-versicolor 17
+guessed class virginica Correct answer Iris-versicolor 18
+guessed class virginica Correct answer Iris-versicolor 19
+guessed class virginica Correct answer Iris-virginica 20
+guessed class virginica Correct answer Iris-virginica 21
+guessed class virginica Correct answer Iris-virginica 22
+guessed class virginica Correct answer Iris-virginica 23
+guessed class virginica Correct answer Iris-virginica 24
+guessed class virginica Correct answer Iris-virginica 25
+guessed class virginica Correct answer Iris-virginica 26
+guessed class virginica Correct answer Iris-virginica 27
+guessed class virginica Correct answer Iris-virginica 28
+guessed class virginica Correct answer Iris-virginica 29
